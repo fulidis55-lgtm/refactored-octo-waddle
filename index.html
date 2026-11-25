@@ -16,6 +16,8 @@
 :root[data-theme="dark"]{--bg:#14171d;--card:#1e232c;--tx:#eceef2;--mut:#98a0ae;--ac:#6ea3ff;--ok:#4cc27d;--no:#ef7a6c;--bd:#2c3340}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
 body{max-width:520px;margin:0 auto;padding:12px 14px 30px;zoom:.966}
+/* в установленном приложении нет адресной строки: опускаем страницу на её высоту, чтобы всё стояло на прежнем уровне */
+@media (display-mode: standalone){body{padding-top:calc(12px + 58px + env(safe-area-inset-top,0px))}}
 button{font:inherit;color:inherit}
 .top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}.top b{line-height:39px}.tr{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;margin-right:12px;margin-top:-2px;position:relative;top:32px}
 .hint{color:var(--mut);font-size:14px}
