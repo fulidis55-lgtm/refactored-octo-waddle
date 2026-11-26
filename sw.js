@@ -1,4 +1,4 @@
-// Polyglot: работа без интернета. Новая версия страницы подхватывается сама, когда есть сеть.
+// Greek. IF: работа без интернета. Новая версия страницы подхватывается сама, когда есть сеть.
 const V = "polyglot-v1";
 const CORE = ["./", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png"];
 
