@@ -28,5 +28,17 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "user_preferences": {
+    "color_scheme": {
+      "dark": {
+        "theme_color": "#14171d",
+        "background_color": "#14171d"
+      }
+    },
+    "color_scheme_dark": {
+      "theme_color": "#14171d",
+      "background_color": "#14171d"
+    }
+  }
 }
