@@ -340,7 +340,7 @@ if(!(D.altCur>=0&&D.altCur<D.alt.length))D.altCur=0;
 if(!(D.cur>=0&&D.cur<D.L.length))D.cur=0;
 rebuildP();
 const sv=()=>{try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}};
-let c,msg,mc,live=false,rec=null,delI=null,lt=null,lp=false,showH=false,hI=null,pickOpen=false,addOpen=false,showCW=false,cwI=null,aR="",aG="",aM="",bM="",bT=null,loadOpen=false,lT="",lRes=null,bShow="",cwBack=false,bulkOpen=false,bkT="",bkM="",bkOk=false,ordEdit=false,dirOpen=false;
+let c,msg,mc,live=false,rec=null,delI=null,lt=null,lp=false,showH=false,hI=null,pickOpen=false,addOpen=false,showCW=false,cwI=null,aR="",aG="",aM="",bM="",bT=null,loadOpen=false,lT="",lRes=null,bShow="",cwBack=false,bulkOpen=false,bkT="",bkM="",bkOk=false,ordEdit=false,dirOpen=false,delBase=false;
 const rc=()=>{c={att:0,done:false,show:false};msg="";mc=""};rc();
 const L=()=>D.L[D.cur],gr=id=>P[id].g,vis=l=>l.ids.filter(id=>P[id]&&!D.hid.includes(id));
 const cnt=l=>{const n={g:0,r:0};vis(l).forEach(id=>{if(l.res[id])n[l.res[id]]++});return n};
@@ -424,6 +424,17 @@ function shufL(l){
   if(a[0]===old[0])[a[0],a[1]]=[a[1],a[0]];
   pos.forEach((p,k)=>{l.ids[p]=a[k]});
 }
+function delBaseWords(){
+  const keep=new Set(D.W.filter(w=>w.lv===5).map(w=>w.id));
+  D.W=D.W.filter(w=>keep.has(w.id));
+  Object.keys(P).forEach(k=>{if(!keep.has(+k))delete P[k]});
+  D.hid=D.hid.filter(id=>keep.has(id));
+  D.L=D.L.filter(x=>x.fx||x.lv===5);D.alt=D.alt.filter(x=>x.fx||x.lv===5);
+  sets().forEach(S=>S.forEach(l=>{l.ids=l.ids.filter(id=>keep.has(id));Object.keys(l.res).forEach(k=>{if(!keep.has(+k))delete l.res[k]})}));
+  D.cur=5;D.altCur=5;delI=null;
+  resetB();rc();sv();
+  bM="Готово ✅ · удалены все слова, кроме «Моих слов»";render();
+}
 function setDir(d){
   if(D.dir===d)return;
   [D.L,D.alt]=[D.alt,D.L];[D.cur,D.altCur]=[D.altCur,D.cur];D.dir=d;
@@ -473,7 +484,7 @@ function delW(id){
   sets().forEach(S=>S.forEach(l=>{l.ids=l.ids.filter(x=>x!==id);delete l.res[id]}));
   cwI=null;sv();rc();render();
 }
-const resetB=()=>{dirOpen=false;ordEdit=false;loadOpen=false;lRes=null;lT="";bM="";bShow="";clearTimeout(bT)};
+const resetB=()=>{delBase=false;dirOpen=false;ordEdit=false;loadOpen=false;lRes=null;lT="";bM="";bShow="";clearTimeout(bT)};
 function baseText(){
   const o=["// Греческий тренажёр: база слов. Строка: по-русски | по-гречески. Скрытое слово: в конце | скрыто"];
   for(const k of D.order){
@@ -591,6 +602,7 @@ function render(){
     h+=`<div class="card"><div class="ru" style="cursor:default;font-size:22px;padding:14px 4px 10px">Порядок перевода</div>
     <button class="les${D.dir==="ru"?" on":""}" data-a="dirr"><span><b>Русский → Греческий</b></span><span>${D.dir==="ru"?"✓":""}</span></button>
     <button class="les${D.dir==="gr"?" on":""}" data-a="dirg"><span><b>Греческий → Русский</b></span><span>${D.dir==="gr"?"✓":""}</span></button>
+    ${delBase?`<div class="dl" style="margin-top:8px"><span>Удалить все слова, кроме «Моих слов»?</span><span><button class="no" data-a="dbn">Нет</button> <button class="yes" data-a="dby">Удалить</button></span></div>`:`<button class="les delb" style="margin-top:8px"><span style="color:var(--no)"><b>Удалить текущую базу слов</b></span></button><p class="hint" style="pointer-events:none;margin:0 0 4px">удерживай, чтобы удалить</p>`}
     <button class="next" style="background:none;border:1px solid var(--bd);color:var(--tx);font-size:18px;margin-top:8px" data-a="dirx">Закрыть</button></div>`;
   }else if(pickOpen&&loadOpen&&lRes){
     const cn=lRes.lv.map(a=>a.length),hn=lRes.lv.reduce((t,a)=>t+a.filter(x=>x.h).length,0);
@@ -650,7 +662,9 @@ document.addEventListener("click",e=>{
   else if(a==="lfile")pickFile();
   else if(a==="dirr"){setDir("ru");dirOpen=false;render()}
   else if(a==="dirg"){setDir("gr");dirOpen=false;render()}
-  else if(a==="dirx"){dirOpen=false;render()}
+  else if(a==="dirx"){dirOpen=false;delBase=false;render()}
+  else if(a==="dbn"){delBase=false;render()}
+  else if(a==="dby")delBaseWords();
   else if(a==="ordx"){ordEdit=false;render()}
   else if(a==="bulk"){try{if(rec&&live)rec.abort()}catch(e){}try{speechSynthesis.cancel()}catch(e){}bulkOpen=true;addOpen=false;showCW=false;pickOpen=false;bkM="";bkOk=false;render()}
   else if(a==="bkx"){bulkOpen=false;bkT="";bkM="";render()}
@@ -708,7 +722,8 @@ document.addEventListener("pointercancel",()=>endDrag(false));
 let lx=0,ly=0,lpT=0,mvd=false;
 function lpOpen(b){
   lp=true;lpT=Date.now();
-  if(b.classList.contains("dirt"))dirOpen=true;
+  if(b.classList.contains("delb"))delBase=true;
+  else if(b.classList.contains("dirt"))dirOpen=true;
   else if(b.classList.contains("lvr"))ordEdit=true;
   else if(b.classList.contains("les"))delI=+b.dataset.i;
   else if(b.classList.contains("hp"))hI=+b.dataset.h;
@@ -718,7 +733,7 @@ function lpOpen(b){
 }
 function lpTarget(t){
   const b=t.closest&&t.closest(".les,.hp,.add,.dirt");if(!b)return null;
-  if(b.classList.contains("lvr")||b.classList.contains("dirt"))return b;
+  if(b.classList.contains("lvr")||b.classList.contains("dirt")||b.classList.contains("delb"))return b;
   if(b.classList.contains("les")){const x=D.L[+b.dataset.i];if(!x||x.fx)return null}
   return b;
 }
